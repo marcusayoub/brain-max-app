@@ -8,6 +8,7 @@ export default function LoginPage() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
     "idle",
   );
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -19,6 +20,7 @@ export default function LoginPage() {
         emailRedirectTo: `${window.location.origin}/auth/confirm`,
       },
     });
+    setErrorMessage(error?.message ?? null);
     setStatus(error ? "error" : "sent");
   }
 
@@ -58,7 +60,7 @@ export default function LoginPage() {
         </button>
         {status === "error" && (
           <p className="text-sm text-red-600">
-            Something went wrong sending the link. Try again.
+            {errorMessage ?? "Something went wrong sending the link. Try again."}
           </p>
         )}
       </form>

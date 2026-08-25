@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import SignOutButton from "./sign-out-button";
@@ -17,6 +18,9 @@ export default async function ProtectedPage() {
       <p className="text-lg text-black dark:text-white">
         Signed in as {user.email}
       </p>
+      <Link href="/goals" className="text-sm text-zinc-600 underline dark:text-zinc-400">
+        Go to Goals
+      </Link>
       <SignOutButton />
     </div>
   );

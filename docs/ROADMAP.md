@@ -30,7 +30,7 @@ item starting Phase 2, the first phase that creates a table.
 
 ---
 
-## Phase 2 — goals
+## Phase 2 — goals — DONE
 
 Create, view, edit, retire a six-month goal. The specificity check: when a
 statement is vague, ask one follow-up question before saving. This is a plain

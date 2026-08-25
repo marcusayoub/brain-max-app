@@ -57,8 +57,14 @@ There is no composite "brain score". Show real counts, never a blended index.
 
 ## Current status
 
-Phase 0 and Phase 1 done: app is deployed and live on Vercel, with working
-Supabase magic-link sign-in/sign-out and a protected page. Next up is Phase 2
-in `docs/ROADMAP.md`.
+Phase 0, 1, and 2 done: app is deployed and live on Vercel, with working
+Supabase magic-link sign-in/sign-out and a Goals page (create/edit/retire,
+with the specificity check pushing back on vague goals via the Anthropic API).
+Next up is Phase 3 in `docs/ROADMAP.md`.
+
+Email delivery for magic links runs through Resend as custom SMTP (set up in
+Supabase's Authentication → Emails settings) — the free built-in Supabase
+sender is rate-limited to a couple emails/hour and isn't enough even for
+solo testing.
 
 @AGENTS.md
