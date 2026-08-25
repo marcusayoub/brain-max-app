@@ -73,6 +73,18 @@ come later if the paste flow proves people actually have notes worth importing.
 
 **Done when:** I can paste a messy real list and get back something I'd keep.
 
+### Phase 5b — Notion import (later)
+
+Only once Phase 5 proves people have notes worth importing. Notion has a real
+API — OAuth connect, pull page content via the Blocks API, flatten to plain
+text, then run it through the same pipeline in `lib/prompts/import.ts`
+unchanged. No new classification logic needed, just a source-specific text
+extraction step.
+
+Apple Notes has no public API and is not buildable as a direct integration.
+Users export/share their notes as text and use the Phase 5 paste flow instead
+— that already covers it.
+
 ---
 
 ## Phase 6 — the reframe loop
@@ -108,9 +120,36 @@ and marked here.
 
 ---
 
+## Phase 9 — WHOOP integration
+
+After Phase 8, since it enhances the diary/review loop rather than blocking
+anything before it. OAuth connect to WHOOP's API. Pull daily recovery score,
+HRV, resting heart rate, and sleep summary; show them read-only next to that
+day's diary entry — never blended into any score. In the monthly review, show
+diary/reframe patterns and the recovery trend side by side and let the user
+draw their own conclusion.
+
+Tokens stored and refreshed server-side only, same rule as the Anthropic key.
+
+**Done when:** a diary entry shows that day's actual WHOOP recovery data next
+to what I wrote.
+
+---
+
 ## Later — not now
 
-Focus section: sessions, phone usage, blocking, grayscale. Needs native access,
-crowded category, separate build.
+Focus section: sessions, phone usage, blocking, grayscale. Needs native OS
+access (iOS Family Controls, Android UsageStats) that a web app cannot reach —
+this is a separate native build, not a Next.js feature. Options when it's
+time: a small companion native app talking to the same Supabase backend
+(smallest footprint, doesn't disturb the web app), Capacitor wrapping the web
+app with custom native plugins, or a full React Native/Expo rewrite. Leaning
+toward the companion-app route so the web app stays untouched, but not
+deciding until this is actually next.
+
+Mental training beyond the reframe loop: meditations, self-talk, visualization
+exercises. No design rationale written yet, unlike the reframe loop — don't
+scope until there's a specific reason to.
+
 Growth section: reading, learning, cognitive challenges.
 Payments and pricing. Decide after retention is known.
