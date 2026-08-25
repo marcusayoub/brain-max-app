@@ -17,12 +17,16 @@ to lose.
 
 ---
 
-## Phase 1 — accounts
+## Phase 1 — accounts — DONE
 
 Supabase auth, email magic link. Sign in, sign out, a protected page that shows
 my email. RLS turned on from the start.
 
 **Done when:** two different accounts see two different empty states.
+
+Note: no app data tables exist yet, so there's nothing to apply RLS to besides
+Supabase's own `auth.users`, which it manages itself. RLS becomes an action
+item starting Phase 2, the first phase that creates a table.
 
 ---
 
