@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -26,38 +28,34 @@ export default function LoginPage() {
 
   if (status === "sent") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white px-4 dark:bg-black">
-        <p className="max-w-sm text-center text-lg text-black dark:text-white">
-          Check your email — we sent a sign-in link to {email}.
+      <div className="flex min-h-screen items-center justify-center bg-background px-6">
+        <p className="max-w-sm text-center text-lg leading-relaxed text-foreground">
+          Check your email — we sent a sign-in link to{" "}
+          <span className="font-medium">{email}</span>.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white px-4 dark:bg-black">
+    <div className="flex min-h-screen items-center justify-center bg-background px-6">
       <form
         onSubmit={handleSubmit}
-        className="flex w-full max-w-sm flex-col gap-4"
+        className="flex w-full max-w-sm flex-col gap-5 rounded-2xl border border-foreground/10 bg-background p-8 shadow-[0_1px_2px_rgba(22,24,29,0.04),0_8px_24px_rgba(22,24,29,0.06)]"
       >
-        <h1 className="text-2xl font-semibold text-black dark:text-white">
+        <h1 className="text-2xl font-semibold tracking-[-0.01em] text-foreground">
           Sign in
         </h1>
-        <input
+        <Input
           type="email"
           required
           placeholder="you@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="rounded border border-zinc-300 bg-white px-3 py-2 text-black dark:border-zinc-700 dark:bg-black dark:text-white"
         />
-        <button
-          type="submit"
-          disabled={status === "sending"}
-          className="rounded bg-black px-3 py-2 text-white disabled:opacity-50 dark:bg-white dark:text-black"
-        >
+        <Button type="submit" disabled={status === "sending"}>
           {status === "sending" ? "Sending..." : "Send magic link"}
-        </button>
+        </Button>
         {status === "error" && (
           <p className="text-sm text-red-600">
             {errorMessage ?? "Something went wrong sending the link. Try again."}

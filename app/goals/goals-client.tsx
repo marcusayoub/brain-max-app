@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 type Goal = {
   id: string;
@@ -139,44 +141,47 @@ export default function GoalsClient() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-black">
-        <p className="text-zinc-500">Loading...</p>
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <p className="text-muted">Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto min-h-screen max-w-2xl bg-white px-6 py-16 dark:bg-black">
-      <h1 className="mb-8 text-2xl font-semibold text-black dark:text-white">
+    <div className="mx-auto min-h-screen max-w-2xl px-6 py-16 sm:py-24">
+      <h1 className="mb-10 text-sm font-medium uppercase tracking-[0.08em] text-muted">
         Goals
       </h1>
 
-      <div className="mb-12 flex flex-col gap-6">
+      <div className="mb-14 flex flex-col gap-10">
         {activeGoals.length === 0 && (
-          <p className="text-zinc-500">
+          <p className="text-lg leading-relaxed text-muted">
             No goals yet. Write one below — what would be true in six months
             that isn&apos;t true now?
           </p>
         )}
         {activeGoals.map((goal) => (
-          <div key={goal.id} className="border-b border-zinc-200 pb-6 dark:border-zinc-800">
+          <div
+            key={goal.id}
+            className="border-b border-foreground/10 pb-8 last:border-b-0"
+          >
             {editingId === goal.id ? (
-              <div className="flex flex-col gap-2">
-                <input
+              <div className="flex flex-col gap-3">
+                <Input
                   value={editDraft}
                   onChange={(e) => setEditDraft(e.target.value)}
-                  className="rounded border border-zinc-300 bg-white px-3 py-2 text-black dark:border-zinc-700 dark:bg-black dark:text-white"
+                  autoFocus
                 />
-                <div className="flex gap-3 text-sm">
+                <div className="flex gap-4 text-sm">
                   <button
                     onClick={() => handleEditSave(goal.id)}
-                    className="text-[#1B4DFF]"
+                    className="font-medium text-accent transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
                   >
                     Save
                   </button>
                   <button
                     onClick={() => setEditingId(null)}
-                    className="text-zinc-500"
+                    className="text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
                   >
                     Cancel
                   </button>
@@ -184,19 +189,23 @@ export default function GoalsClient() {
               </div>
             ) : (
               <>
-                <p className="text-2xl font-semibold leading-snug tracking-tight text-[#1B4DFF]">
+                <p className="font-display text-3xl italic font-medium leading-[1.15] tracking-[-0.01em] text-accent sm:text-4xl">
                   {goal.statement}
                 </p>
-                <div className="mt-2 flex gap-4 text-sm text-zinc-500">
+                <div className="mt-3 flex gap-5 text-sm text-muted">
                   <button
                     onClick={() => {
                       setEditingId(goal.id);
                       setEditDraft(goal.statement);
                     }}
+                    className="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
                   >
                     Edit
                   </button>
-                  <button onClick={() => handleRetire(goal.id)}>
+                  <button
+                    onClick={() => handleRetire(goal.id)}
+                    className="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+                  >
                     Retire
                   </button>
                 </div>
@@ -209,38 +218,39 @@ export default function GoalsClient() {
       {activeGoals.length < MAX_ACTIVE_GOALS ? (
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           {question && (
-            <p className="rounded bg-zinc-100 px-3 py-2 text-sm text-black dark:bg-zinc-900 dark:text-white">
+            <p className="rounded-lg bg-accent/8 px-4 py-3 text-sm leading-relaxed text-foreground">
               {question}
             </p>
           )}
-          <input
+          <Input
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             placeholder="In six months, I will have..."
-            className="rounded border border-zinc-300 bg-white px-3 py-2 text-black dark:border-zinc-700 dark:bg-black dark:text-white"
           />
-          <button
+          <Button
             type="submit"
             disabled={checking || !draft.trim()}
-            className="self-start rounded bg-black px-3 py-2 text-white disabled:opacity-50 dark:bg-white dark:text-black"
+            className="self-start"
           >
             {checking ? "Checking..." : question ? "Save goal" : "Add goal"}
-          </button>
+          </Button>
           {error && <p className="text-sm text-red-600">{error}</p>}
         </form>
       ) : (
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-muted">
           You have {MAX_ACTIVE_GOALS} active goals, the max. Retire one to add
           another.
         </p>
       )}
 
       {retiredGoals.length > 0 && (
-        <div className="mt-16">
-          <h2 className="mb-3 text-sm font-medium text-zinc-500">Retired</h2>
+        <div className="mt-20">
+          <h2 className="mb-3 text-sm font-medium uppercase tracking-[0.08em] text-muted">
+            Retired
+          </h2>
           <ul className="flex flex-col gap-2">
             {retiredGoals.map((goal) => (
-              <li key={goal.id} className="text-sm text-zinc-400 line-through">
+              <li key={goal.id} className="text-sm text-muted line-through">
                 {goal.statement}
               </li>
             ))}
