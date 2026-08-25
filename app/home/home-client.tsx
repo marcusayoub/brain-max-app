@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
+import { AppNav } from "@/components/nav";
 
 type Goal = { id: string; statement: string };
 type Habit = { id: string; title: string; goal_id: string | null };
@@ -131,20 +131,14 @@ export default function HomeClient() {
   );
 
   return (
-    <div className="mx-auto min-h-screen max-w-2xl px-6 py-16 sm:py-24">
-      <div className="mb-10 flex items-center justify-between">
-        <h1 className="text-sm font-medium uppercase tracking-[0.08em] text-muted">
-          Daily Brain
-        </h1>
-        <Link
-          href="/goals"
-          className="text-sm text-muted underline decoration-muted/40 underline-offset-4 transition-colors duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
-        >
-          Goals
-        </Link>
-      </div>
+    <div className="min-h-screen">
+      <AppNav />
+      <div className="mx-auto max-w-2xl px-6 pb-16 pt-10 sm:pt-12">
+      <h1 className="mb-8 text-sm font-medium uppercase tracking-[0.08em] text-muted">
+        Daily Brain
+      </h1>
 
-      <div className="mb-14 flex flex-col gap-10">
+      <div className="mb-10 flex flex-col gap-8">
         {goalsWithHabits.map((goal) => (
           <div key={goal.id}>
             <p className="font-display mb-3 text-xl italic font-medium leading-snug tracking-[-0.01em] text-accent">
@@ -213,6 +207,7 @@ export default function HomeClient() {
         </Button>
         {error && <p className="text-sm text-red-600">{error}</p>}
       </form>
+      </div>
     </div>
   );
 }

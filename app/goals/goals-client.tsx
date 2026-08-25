@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AppNav } from "@/components/nav";
 
 type Goal = {
   id: string;
@@ -148,12 +149,14 @@ export default function GoalsClient() {
   }
 
   return (
-    <div className="mx-auto min-h-screen max-w-2xl px-6 py-16 sm:py-24">
-      <h1 className="mb-10 text-sm font-medium uppercase tracking-[0.08em] text-muted">
+    <div className="min-h-screen">
+      <AppNav />
+      <div className="mx-auto max-w-2xl px-6 pb-16 pt-10 sm:pt-12">
+      <h1 className="mb-8 text-sm font-medium uppercase tracking-[0.08em] text-muted">
         Goals
       </h1>
 
-      <div className="mb-14 flex flex-col gap-10">
+      <div className="mb-10 flex flex-col gap-8">
         {activeGoals.length === 0 && (
           <p className="text-lg leading-relaxed text-muted">
             No goals yet. Write one below — what would be true in six months
@@ -189,7 +192,7 @@ export default function GoalsClient() {
               </div>
             ) : (
               <>
-                <p className="font-display text-3xl italic font-medium leading-[1.15] tracking-[-0.01em] text-accent sm:text-4xl">
+                <p className="font-display text-2xl italic font-medium leading-[1.2] tracking-[-0.01em] text-accent sm:text-3xl">
                   {goal.statement}
                 </p>
                 <div className="mt-3 flex gap-5 text-sm text-muted">
@@ -244,7 +247,7 @@ export default function GoalsClient() {
       )}
 
       {retiredGoals.length > 0 && (
-        <div className="mt-20">
+        <div className="mt-12">
           <h2 className="mb-3 text-sm font-medium uppercase tracking-[0.08em] text-muted">
             Retired
           </h2>
@@ -257,6 +260,7 @@ export default function GoalsClient() {
           </ul>
         </div>
       )}
+      </div>
     </div>
   );
 }
