@@ -53,7 +53,7 @@ separately.
 
 ---
 
-## Phase 4 — the daily loop
+## Phase 4 — the daily loop — BUILT, awaiting the 5-day check
 
 Morning intention, evening diary entry, quote collection. Nothing clever.
 

@@ -57,10 +57,11 @@ There is no composite "brain score". Show real counts, never a blended index.
 
 ## Current status
 
-Phase 0, 1, and 2 done: app is deployed and live on Vercel, with working
-Supabase magic-link sign-in/sign-out and a Goals page (create/edit/retire,
-with the specificity check pushing back on vague goals via the Anthropic API).
-Next up is Phase 3 in `docs/ROADMAP.md`.
+Phase 0-3 done, Phase 4 built (awaiting its 5-day usage check per
+`docs/ROADMAP.md`). Live on Vercel: magic-link auth, Goals (with the
+specificity check), Daily Brain home screen with Morning intention / Habits
+grouped by goal / Evening diary / Quotes. A real design pass has been applied
+using the palette and type direction from `docs/PRODUCT.md`.
 
 Email delivery for magic links runs through Resend as custom SMTP (set up in
 Supabase's Authentication → Emails settings) — the free built-in Supabase

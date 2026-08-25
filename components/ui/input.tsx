@@ -5,10 +5,16 @@ const fieldStyles =
   "placeholder:text-muted transition-[box-shadow,border-color] duration-150 " +
   "focus-visible:outline-none focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/20";
 
-export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
-  return <input className={fieldStyles} {...props} />;
+export function Input({
+  className = "",
+  ...props
+}: InputHTMLAttributes<HTMLInputElement>) {
+  return <input className={`${fieldStyles} ${className}`} {...props} />;
 }
 
-export function Select(props: SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select className={fieldStyles} {...props} />;
+export function Select({
+  className = "",
+  ...props
+}: SelectHTMLAttributes<HTMLSelectElement>) {
+  return <select className={`${fieldStyles} ${className}`} {...props} />;
 }
