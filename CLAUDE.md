@@ -57,6 +57,7 @@ There is no composite "brain score". Show real counts, never a blended index.
 
 ## Current status
 
-Nothing built yet. Start at Phase 0 in `docs/ROADMAP.md`.
+Phase 0 done: app is deployed and live on Vercel. Next up is Phase 1 in
+`docs/ROADMAP.md`.
 
 @AGENTS.md

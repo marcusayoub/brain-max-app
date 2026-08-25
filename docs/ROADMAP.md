@@ -5,7 +5,7 @@ phone. Mark phases done here as you go.
 
 ---
 
-## Phase 0 — it runs and it deploys — NOT STARTED
+## Phase 0 — it runs and it deploys — DONE
 
 Next.js + TypeScript + Tailwind. One page that says the app name. Pushed to
 GitHub, deployed to Vercel, opening correctly on my phone.
