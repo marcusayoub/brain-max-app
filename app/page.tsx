@@ -3,8 +3,8 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-5 bg-background px-6">
-      <h1 className="animate-[rise_0.5s_var(--ease-spring)] text-5xl font-semibold tracking-[-0.02em] text-foreground">
-        Autopilot
+      <h1 className="animate-[rise_0.5s_var(--ease-spring)] text-5xl font-semibold tracking-[-0.03em] text-foreground">
+        Brain-Max
       </h1>
       <Link
         href="/login"

@@ -1,159 +1,103 @@
 # Roadmap
 
-Build in order. Do not start a phase before the one above it runs on a real
-phone. Mark phases done here as you go.
+Build in order. Mark phases done here as you go.
 
 ---
 
 ## Phase 0 — it runs and it deploys — DONE
 
-Next.js + TypeScript + Tailwind. One page that says the app name. Pushed to
-GitHub, deployed to Vercel, opening correctly on my phone.
-
-Nothing else. The point is to prove the pipeline works before there's anything
-to lose.
-
-**Done when:** I can open the Vercel URL on my phone and see the page.
+Next.js + TypeScript + Tailwind. Pushed to GitHub, deployed to Vercel.
 
 ---
 
 ## Phase 1 — accounts — DONE
 
-Supabase auth, email magic link. Sign in, sign out, a protected page that shows
-my email. RLS turned on from the start.
-
-**Done when:** two different accounts see two different empty states.
-
-Note: no app data tables exist yet, so there's nothing to apply RLS to besides
-Supabase's own `auth.users`, which it manages itself. RLS becomes an action
-item starting Phase 2, the first phase that creates a table.
+Supabase auth, email magic link. Sign in, sign out. RLS turned on from the
+start.
 
 ---
 
-## Phase 2 — goals — DONE
+## Phase 2 — goals — DONE, revised
 
-Create, view, edit, retire a six-month goal. The specificity check: when a
-statement is vague, ask one follow-up question before saving. This is a plain
-server-side call to the Anthropic API — keep the prompt in
-`lib/prompts/specificity.ts` so it's easy to tune.
+Create, view, edit, archive, or mark complete a goal. Optional target date.
+No required "why." No blocking AI check — creating a goal is one field and a
+save, always.
 
-Goal statement gets the display treatment from the design direction.
-
-**Done when:** I can write a vague goal, get pushed on it, and save a better one.
+**Done when:** a goal can be created in one step, and later archived or
+marked complete without either reading as failure.
 
 ---
 
-## Phase 3 — habits attached to goals
+## Phase 3 — Home MVP — IN PROGRESS
 
-Create habits, attach each to a goal or leave it unattached. Check them off.
-The home screen groups them by the goal they serve, with unattached ones shown
-separately.
+The real build. Dark-first design system (see `docs/PRODUCT.md`). Both
+signature elements — the thread, etched goal statements.
 
-**Done when:** the home screen makes it obvious which habits point nowhere.
+- **Tasks**: one-off items, swipe right to complete / swipe left to carry to
+  tomorrow, buttons as a fallback. After a few carries, ask once whether it's
+  still worth keeping — never framed as failure.
+- **Habits**: create, edit, archive, check off daily, grouped by goal.
+- **Diary**: one open text box, one entry per day.
+- **Quotes**: text, author, optional note.
 
----
-
-## Phase 4 — the daily loop — BUILT, awaiting the 5-day check
-
-Morning intention, evening diary entry, quote collection. Nothing clever.
-
-**Done when:** I've used it myself for five days straight without editing code.
-
----
-
-## Phase 5 — import
-
-Deliberately after Phase 4. You cannot build a good import until you know what
-a well-formed goal looks like in your own system — build it earlier and you
-build it twice.
-
-Spec lives in `docs/IMPORT.md`. Read it before starting.
-
-The import **reduces**. Sixty pasted items come back as a handful of goals and
-habits plus an archive, not a sixty-row approval queue.
-
-Sources for this phase: paste and file upload only. Screenshots and Notion
-come later if the paste flow proves people actually have notes worth importing.
-
-**Done when:** I can paste a messy real list and get back something I'd keep.
-
-### Phase 5b — Notion import (later)
-
-Only once Phase 5 proves people have notes worth importing. Notion has a real
-API — OAuth connect, pull page content via the Blocks API, flatten to plain
-text, then run it through the same pipeline in `lib/prompts/import.ts`
-unchanged. No new classification logic needed, just a source-specific text
-extraction step.
-
-Apple Notes has no public API and is not buildable as a direct integration.
-Users export/share their notes as text and use the Phase 5 paste flow instead
-— that already covers it.
+**Done when:** the home screen makes Tasks and Habits immediately
+distinguishable, and the thread visibly connects a goal to what was done
+today.
 
 ---
 
-## Phase 6 — the reframe loop
+## Phase 4 — Mindset (reframe only)
 
-`Something happened` opens the Mindset flow. Situation → two or three questions
-that surface the automatic thought → user writes their own alternate reading.
-Under ninety seconds.
+`Something happened` opens the flow. Situation → two or three questions that
+surface the automatic thought → user writes their own alternate reading.
+Under ninety seconds. Prompt lives in `lib/prompts/reframe.ts`. The model asks
+questions; it never writes the reframe.
 
-Prompt lives in `lib/prompts/reframe.ts`. The model asks questions; it never
-writes the reframe.
+Self-talk and visualization stay out until reframing has proven itself.
 
-**Done when:** I've run it on something that actually annoyed me and it helped.
-
----
-
-## Phase 7 — pattern detection
-
-Across diary entries and reframes, surface recurring interpretations. "You've
-framed four situations this month as personal failures where the cause was
-outside your control."
-
-Runs on demand, not on a schedule. Needs roughly twenty entries to say anything
-worth reading — build the empty state honestly.
-
-**Done when:** it tells me something about myself I hadn't noticed.
+**Done when:** run it on something that actually happened and it helped.
 
 ---
 
-## Phase 8 — monthly review
+## Phase 5 — Progress
 
-The ritual. What you said, what happened, what to change. Milestones get set
-and marked here.
+One generated paragraph reflecting the week back — built from habits, tasks,
+diary entries, and goals — with at most a couple of small supporting numbers
+underneath. Never leads with numbers. Returning after a break is always
+welcoming, never a report of what was missed.
+
+**Done when:** it says something true and useful, not a stats readout.
 
 ---
 
-## Phase 9 — WHOOP integration
+## Phase 6 — refinement
 
-After Phase 8, since it enhances the diary/review loop rather than blocking
-anything before it. OAuth connect to WHOOP's API. Pull daily recovery score,
-HRV, resting heart rate, and sleep summary; show them read-only next to that
-day's diary entry — never blended into any score. In the monthly review, show
-diary/reframe patterns and the recovery trend side by side and let the user
-draw their own conclusion.
+Stronger Goal ↔ Habit ↔ Task visual relationships, better Progress insights,
+animation polish, expand Mindset (self-talk, visualization) only once
+reframing is proven, continued UX polish.
 
-Tokens stored and refreshed server-side only, same rule as the Anthropic key.
+---
 
-**Done when:** a diary entry shows that day's actual WHOOP recovery data next
-to what I wrote.
+## Phase 7 — import
+
+Spec lives in `docs/IMPORT.md`. The import reduces — sixty pasted items come
+back as a handful of goals/habits plus an archive, not an approval queue.
+Paste and file upload only to start; Notion later if paste proves people have
+notes worth importing. Apple Notes has no public API — paste flow covers it.
+
+**Done when:** a messy real list comes back as something worth keeping.
 
 ---
 
 ## Later — not now
 
-Focus section: sessions, phone usage, blocking, grayscale. Needs native OS
-access (iOS Family Controls, Android UsageStats) that a web app cannot reach —
-this is a separate native build, not a Next.js feature. Options when it's
-time: a small companion native app talking to the same Supabase backend
-(smallest footprint, doesn't disturb the web app), Capacitor wrapping the web
-app with custom native plugins, or a full React Native/Expo rewrite. Leaning
-toward the companion-app route so the web app stays untouched, but not
-deciding until this is actually next.
+Focus (sessions, phone usage, blocking, grayscale) — needs native OS access
+(iOS Family Controls, Android UsageStats) a web app can't reach. When it's
+time: a small companion native app talking to the same Supabase backend,
+not a rewrite of what already works.
 
-Mental training beyond the reframe loop: meditations, self-talk, visualization
-exercises. No design rationale written yet, unlike the reframe loop — don't
-scope until there's a specific reason to.
+Growth (reading, cognitive challenges). WHOOP. Apple Health. Social features.
+Payments and pricing — decide after retention is known.
 
-Growth section: reading, learning, cognitive challenges.
-Payments and pricing. Decide after retention is known.
+None of these get built because the category exists — only when there's an
+actual reason to.

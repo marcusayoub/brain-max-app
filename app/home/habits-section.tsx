@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
+import { Thread, ThreadNode } from "@/components/ui/thread";
+import { EtchedText } from "@/components/ui/etched-text";
 
 type Goal = { id: string; statement: string };
 type Habit = { id: string; title: string; goal_id: string | null };
@@ -27,6 +29,7 @@ export function HabitsSection({
 
   const [habits, setHabits] = useState<Habit[]>([]);
   const [checkedToday, setCheckedToday] = useState<Set<string>>(new Set());
+  const [pulsingId, setPulsingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [newTitle, setNewTitle] = useState("");
@@ -99,6 +102,8 @@ export function HabitsSection({
         .insert({ habit_id: habitId, user_id: userId, date: today });
       if (!insertError) {
         setCheckedToday((prev) => new Set(prev).add(habitId));
+        setPulsingId(habitId);
+        setTimeout(() => setPulsingId(null), 700);
       }
     }
   }
@@ -119,39 +124,49 @@ export function HabitsSection({
       <div className="mb-6 flex flex-col gap-6">
         {goalsWithHabits.map((goal) => (
           <div key={goal.id}>
-            <p className="font-display mb-2 text-lg italic font-medium leading-snug tracking-[-0.01em] text-accent">
-              {goal.statement}
-            </p>
-            <ul className="flex flex-col gap-1">
+            <EtchedText className="mb-2 text-lg">{goal.statement}</EtchedText>
+            <Thread>
               {habits
                 .filter((h) => h.goal_id === goal.id)
                 .map((habit) => (
-                  <HabitRow
+                  <ThreadNode
                     key={habit.id}
-                    habit={habit}
-                    checked={checkedToday.has(habit.id)}
-                    onToggle={() => toggleHabit(habit.id)}
-                  />
+                    done={checkedToday.has(habit.id)}
+                    pulse={pulsingId === habit.id}
+                  >
+                    <HabitRow
+                      habit={habit}
+                      checked={checkedToday.has(habit.id)}
+                      onToggle={() => toggleHabit(habit.id)}
+                    />
+                  </ThreadNode>
                 ))}
-            </ul>
+            </Thread>
           </div>
         ))}
 
         {unattached.length > 0 && (
           <div>
-            <p className="mb-2 text-sm font-medium text-muted">
-              Not attached to a goal
-            </p>
-            <ul className="flex flex-col gap-1">
+            {goalsWithHabits.length > 0 && (
+              <p className="mb-2 text-sm font-medium text-muted">
+                Not attached to a goal
+              </p>
+            )}
+            <Thread>
               {unattached.map((habit) => (
-                <HabitRow
+                <ThreadNode
                   key={habit.id}
-                  habit={habit}
-                  checked={checkedToday.has(habit.id)}
-                  onToggle={() => toggleHabit(habit.id)}
-                />
+                  done={checkedToday.has(habit.id)}
+                  pulse={pulsingId === habit.id}
+                >
+                  <HabitRow
+                    habit={habit}
+                    checked={checkedToday.has(habit.id)}
+                    onToggle={() => toggleHabit(habit.id)}
+                  />
+                </ThreadNode>
               ))}
-            </ul>
+            </Thread>
           </div>
         )}
 
@@ -196,39 +211,14 @@ function HabitRow({
   onToggle: () => void;
 }) {
   return (
-    <li>
-      <button
-        type="button"
-        onClick={onToggle}
-        className="group flex w-full items-center gap-3 rounded-md py-1.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-      >
-        <span
-          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-[transform,background-color,border-color] duration-150 ease-[var(--ease-spring)] group-active:scale-90 ${
-            checked
-              ? "border-foreground bg-foreground"
-              : "border-foreground/25 group-hover:border-foreground/50"
-          }`}
-        >
-          {checked && (
-            <svg viewBox="0 0 12 12" className="h-3 w-3 text-background" fill="none">
-              <path
-                d="M2.5 6.5L4.75 8.5L9.5 3.5"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          )}
-        </span>
-        <span
-          className={
-            checked ? "text-muted line-through decoration-muted/50" : "text-foreground"
-          }
-        >
-          {habit.title}
-        </span>
-      </button>
-    </li>
+    <button
+      type="button"
+      onClick={onToggle}
+      className="flex flex-1 items-center rounded-md py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+    >
+      <span className={checked ? "text-muted line-through decoration-muted/50" : "text-foreground"}>
+        {habit.title}
+      </span>
+    </button>
   );
 }

@@ -4,11 +4,10 @@ Read this first, every session. Then read `docs/PRODUCT.md` before writing any f
 
 ## What this is
 
-A mobile-first web app that gets people off autopilot by making them name what
-they are actually trying to achieve, then connecting every daily behaviour back
-to it.
-
-Working name: **Autopilot** (rename before launch).
+**Brain-Max** — a mobile-first web app that connects daily action (tasks,
+habits) back to the goals a person has actually named, instead of tracking
+either in isolation. Premium, dark-first, calm even with a full task list.
+No gamification, no scores, no shame for missed days.
 
 ## Who I am
 
@@ -57,11 +56,11 @@ There is no composite "brain score". Show real counts, never a blended index.
 
 ## Current status
 
-Phase 0-3 done, Phase 4 built (awaiting its 5-day usage check per
-`docs/ROADMAP.md`). Live on Vercel: magic-link auth, Goals (with the
-specificity check), Daily Brain home screen with Morning intention / Habits
-grouped by goal / Evening diary / Quotes. A real design pass has been applied
-using the palette and type direction from `docs/PRODUCT.md`.
+Product pivoted from the original "Autopilot" light/quiet-room direction to
+Brain-Max: dark-first, premium, with Tasks as a first-class entity and no
+Morning Intention. `docs/PRODUCT.md` and `docs/ROADMAP.md` reflect the new
+direction; the app itself is being rebuilt to match — see
+`docs/ROADMAP.md` for current phase status.
 
 Email delivery for magic links runs through Resend as custom SMTP (set up in
 Supabase's Authentication → Emails settings) — the free built-in Supabase

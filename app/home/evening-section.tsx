@@ -12,7 +12,7 @@ function todayLocal() {
 }
 
 const textareaStyles =
-  "min-h-28 w-full resize-none rounded-lg border border-foreground/15 bg-background px-3.5 py-2.5 text-[15px] leading-relaxed text-foreground " +
+  "min-h-40 w-full resize-none rounded-xl border border-transparent bg-surface px-5 py-4 text-base leading-relaxed text-foreground " +
   "placeholder:text-muted transition-[box-shadow,border-color] duration-150 " +
   "focus-visible:outline-none focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/20";
 
@@ -59,7 +59,7 @@ export function EveningSection({ userId }: { userId: string }) {
   return (
     <section>
       <p className="mb-3 text-sm font-medium uppercase tracking-[0.08em] text-muted">
-        Evening
+        Diary
       </p>
       <form onSubmit={handleSave} className="flex flex-col gap-3">
         <textarea

@@ -5,8 +5,10 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 const links = [
-  { href: "/home", label: "Daily Brain" },
+  { href: "/home", label: "Home" },
   { href: "/goals", label: "Goals" },
+  { href: "/mindset", label: "Mindset" },
+  { href: "/progress", label: "Progress" },
 ];
 
 export function AppNav() {
@@ -21,14 +23,14 @@ export function AppNav() {
   }
 
   return (
-    <div className="mx-auto flex max-w-2xl items-center justify-between px-6 pt-10 sm:pt-12">
+    <div className="mx-auto flex max-w-2xl flex-col gap-3 px-6 pt-8 sm:flex-row sm:items-center sm:justify-between sm:gap-0 sm:pt-12">
       <Link
         href="/home"
-        className="font-display text-lg italic font-medium tracking-[-0.01em] text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+        className="text-lg font-semibold tracking-[-0.02em] text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
       >
-        Autopilot
+        Brain-Max
       </Link>
-      <nav className="flex items-center gap-5 text-sm">
+      <nav className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
         {links.map((link) => (
           <Link
             key={link.href}

@@ -1,21 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { EtchedText } from "@/components/ui/etched-text";
 import { AppNav } from "@/components/nav";
 
 type Goal = {
   id: string;
   statement: string;
-  status: "active" | "retired";
-  was_vague: boolean;
-  original_statement: string | null;
+  status: "active" | "completed" | "archived";
+  target_date: string | null;
   created_at: string;
 };
-
-const MAX_ACTIVE_GOALS = 3;
 
 export default function GoalsClient() {
   const supabase = createClient();
@@ -24,11 +22,9 @@ export default function GoalsClient() {
   const [loading, setLoading] = useState(true);
 
   const [draft, setDraft] = useState("");
-  const [question, setQuestion] = useState<string | null>(null);
-  const [checking, setChecking] = useState(false);
+  const [targetDate, setTargetDate] = useState("");
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const wasVagueRef = useRef(false);
-  const firstDraftRef = useRef("");
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState("");
@@ -53,53 +49,26 @@ export default function GoalsClient() {
   }, []);
 
   const activeGoals = goals.filter((g) => g.status === "active");
-  const retiredGoals = goals.filter((g) => g.status === "retired");
+  const completedGoals = goals.filter((g) => g.status === "completed");
+  const archivedGoals = goals.filter((g) => g.status === "archived");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!draft.trim() || !userId) return;
+    setSaving(true);
     setError(null);
 
-    // First pass on this draft: check specificity, ask one follow-up
-    // question if vague, and stop there without saving.
-    if (question === null) {
-      setChecking(true);
-      firstDraftRef.current = draft.trim();
-      try {
-        const res = await fetch("/api/goals/check", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ statement: draft.trim() }),
-        });
-        const result = await res.json();
-        setChecking(false);
-        if (result.vague && result.question) {
-          wasVagueRef.current = true;
-          setQuestion(result.question);
-          return;
-        }
-      } catch {
-        setChecking(false);
-        setError("Couldn't reach the specificity check. Try again.");
-        return;
-      }
-    }
-
-    // Either it was already specific, or this is the resubmit after the
-    // one follow-up question — save either way.
     const { data, error: insertError } = await supabase
       .from("goals")
       .insert({
         user_id: userId,
         statement: draft.trim(),
-        was_vague: wasVagueRef.current,
-        original_statement: wasVagueRef.current
-          ? firstDraftRef.current
-          : null,
+        target_date: targetDate || null,
       })
       .select()
       .single();
 
+    setSaving(false);
     if (insertError) {
       setError(insertError.message);
       return;
@@ -107,19 +76,29 @@ export default function GoalsClient() {
 
     setGoals((prev) => [...prev, data as Goal]);
     setDraft("");
-    setQuestion(null);
-    wasVagueRef.current = false;
-    firstDraftRef.current = "";
+    setTargetDate("");
   }
 
-  async function handleRetire(id: string) {
+  async function handleArchive(id: string) {
     const { error: updateError } = await supabase
       .from("goals")
-      .update({ status: "retired", retired_at: new Date().toISOString() })
+      .update({ status: "archived", archived_at: new Date().toISOString() })
       .eq("id", id);
     if (!updateError) {
       setGoals((prev) =>
-        prev.map((g) => (g.id === id ? { ...g, status: "retired" } : g)),
+        prev.map((g) => (g.id === id ? { ...g, status: "archived" } : g)),
+      );
+    }
+  }
+
+  async function handleComplete(id: string) {
+    const { error: updateError } = await supabase
+      .from("goals")
+      .update({ status: "completed", completed_at: new Date().toISOString() })
+      .eq("id", id);
+    if (!updateError) {
+      setGoals((prev) =>
+        prev.map((g) => (g.id === id ? { ...g, status: "completed" } : g)),
       );
     }
   }
@@ -152,115 +131,138 @@ export default function GoalsClient() {
     <div className="min-h-screen">
       <AppNav />
       <div className="mx-auto max-w-2xl px-6 pb-16 pt-10 sm:pt-12">
-      <h1 className="mb-8 text-sm font-medium uppercase tracking-[0.08em] text-muted">
-        Goals
-      </h1>
+        <h1 className="mb-8 text-sm font-medium uppercase tracking-[0.08em] text-muted">
+          Goals
+        </h1>
 
-      <div className="mb-10 flex flex-col gap-8">
-        {activeGoals.length === 0 && (
-          <p className="text-lg leading-relaxed text-muted">
-            No goals yet. Write one below — what would be true in six months
-            that isn&apos;t true now?
-          </p>
-        )}
-        {activeGoals.map((goal) => (
-          <div
-            key={goal.id}
-            className="border-b border-foreground/10 pb-8 last:border-b-0"
-          >
-            {editingId === goal.id ? (
-              <div className="flex flex-col gap-3">
-                <Input
-                  value={editDraft}
-                  onChange={(e) => setEditDraft(e.target.value)}
-                  autoFocus
-                />
-                <div className="flex gap-4 text-sm">
-                  <button
-                    onClick={() => handleEditSave(goal.id)}
-                    className="font-medium text-accent transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={() => setEditingId(null)}
-                    className="text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <>
-                <p className="font-display text-2xl italic font-medium leading-[1.2] tracking-[-0.01em] text-accent sm:text-3xl">
-                  {goal.statement}
-                </p>
-                <div className="mt-3 flex gap-5 text-sm text-muted">
-                  <button
-                    onClick={() => {
-                      setEditingId(goal.id);
-                      setEditDraft(goal.statement);
-                    }}
-                    className="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleRetire(goal.id)}
-                    className="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
-                  >
-                    Retire
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {activeGoals.length < MAX_ACTIVE_GOALS ? (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          {question && (
-            <p className="rounded-lg bg-accent/8 px-4 py-3 text-sm leading-relaxed text-foreground">
-              {question}
+        <div className="mb-10 flex flex-col gap-8">
+          {activeGoals.length === 0 && (
+            <p className="text-lg leading-relaxed text-muted">
+              No goals yet. What&apos;s something you want to be true later?
             </p>
           )}
+          {activeGoals.map((goal) => (
+            <div
+              key={goal.id}
+              className="rounded-xl border border-border bg-surface p-5"
+            >
+              {editingId === goal.id ? (
+                <div className="flex flex-col gap-3">
+                  <Input
+                    value={editDraft}
+                    onChange={(e) => setEditDraft(e.target.value)}
+                    autoFocus
+                  />
+                  <div className="flex gap-4 text-sm">
+                    <button
+                      onClick={() => handleEditSave(goal.id)}
+                      className="font-medium text-accent transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setEditingId(null)}
+                      className="text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <EtchedText className="text-2xl sm:text-3xl">
+                    {goal.statement}
+                  </EtchedText>
+                  {goal.target_date && (
+                    <p className="mt-2 text-sm text-muted">
+                      Target: {formatDate(goal.target_date)}
+                    </p>
+                  )}
+                  <div className="mt-4 flex gap-5 text-sm text-muted">
+                    <button
+                      onClick={() => {
+                        setEditingId(goal.id);
+                        setEditDraft(goal.statement);
+                      }}
+                      className="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleComplete(goal.id)}
+                      className="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+                    >
+                      Mark complete
+                    </button>
+                    <button
+                      onClick={() => handleArchive(goal.id)}
+                      className="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+                    >
+                      Archive
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <Input
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            placeholder="In six months, I will have..."
+            placeholder="A goal worth naming"
           />
-          <Button
-            type="submit"
-            disabled={checking || !draft.trim()}
-            className="self-start"
-          >
-            {checking ? "Checking..." : question ? "Save goal" : "Add goal"}
+          <Input
+            type="date"
+            value={targetDate}
+            onChange={(e) => setTargetDate(e.target.value)}
+            className="text-muted"
+          />
+          <Button type="submit" disabled={saving || !draft.trim()} className="self-start">
+            {saving ? "Saving..." : "Add goal"}
           </Button>
           {error && <p className="text-sm text-red-600">{error}</p>}
         </form>
-      ) : (
-        <p className="text-sm text-muted">
-          You have {MAX_ACTIVE_GOALS} active goals, the max. Retire one to add
-          another.
-        </p>
-      )}
 
-      {retiredGoals.length > 0 && (
-        <div className="mt-12">
-          <h2 className="mb-3 text-sm font-medium uppercase tracking-[0.08em] text-muted">
-            Retired
-          </h2>
-          <ul className="flex flex-col gap-2">
-            {retiredGoals.map((goal) => (
-              <li key={goal.id} className="text-sm text-muted line-through">
-                {goal.statement}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+        {completedGoals.length > 0 && (
+          <div className="mt-12">
+            <h2 className="mb-3 text-sm font-medium uppercase tracking-[0.08em] text-muted">
+              Completed
+            </h2>
+            <ul className="flex flex-col gap-2">
+              {completedGoals.map((goal) => (
+                <li key={goal.id} className="text-sm text-foreground">
+                  {goal.statement}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {archivedGoals.length > 0 && (
+          <div className="mt-8">
+            <h2 className="mb-3 text-sm font-medium uppercase tracking-[0.08em] text-muted">
+              Archived
+            </h2>
+            <ul className="flex flex-col gap-2">
+              {archivedGoals.map((goal) => (
+                <li key={goal.id} className="text-sm text-muted line-through">
+                  {goal.statement}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );
+}
+
+function formatDate(iso: string) {
+  return new Date(iso + "T00:00:00").toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }

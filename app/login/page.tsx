@@ -41,7 +41,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-6">
       <form
         onSubmit={handleSubmit}
-        className="flex w-full max-w-sm flex-col gap-5 rounded-2xl border border-foreground/10 bg-background p-8 shadow-[0_1px_2px_rgba(22,24,29,0.04),0_8px_24px_rgba(22,24,29,0.06)]"
+        className="flex w-full max-w-sm flex-col gap-5 rounded-2xl border border-border bg-surface p-8 shadow-[0_1px_2px_rgba(0,0,0,0.3),0_12px_32px_rgba(0,0,0,0.4)]"
       >
         <h1 className="text-2xl font-semibold tracking-[-0.01em] text-foreground">
           Sign in

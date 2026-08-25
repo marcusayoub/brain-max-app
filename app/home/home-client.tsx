@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { AppNav } from "@/components/nav";
-import { MorningSection } from "./morning-section";
+import { TasksSection } from "./tasks-section";
 import { HabitsSection } from "./habits-section";
 import { EveningSection } from "./evening-section";
 import { QuotesSection } from "./quotes-section";
@@ -48,14 +48,14 @@ export default function HomeClient() {
     <div className="min-h-screen">
       <AppNav />
       <div className="mx-auto flex max-w-2xl flex-col gap-10 px-6 pb-16 pt-10 sm:pt-12">
-        <MorningSection userId={userId} goals={goals} />
-        <div className="border-t border-foreground/10 pt-10">
+        <TasksSection userId={userId} goals={goals} />
+        <div className="border-t border-border pt-10">
           <HabitsSection userId={userId} goals={goals} />
         </div>
-        <div className="border-t border-foreground/10 pt-10">
+        <div className="border-t border-border pt-10">
           <EveningSection userId={userId} />
         </div>
-        <div className="border-t border-foreground/10 pt-10">
+        <div className="border-t border-border pt-10">
           <QuotesSection userId={userId} />
         </div>
       </div>

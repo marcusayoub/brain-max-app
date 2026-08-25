@@ -8,108 +8,138 @@ this Tuesday was in service of.
 
 ## The thesis
 
-Specificity is the intervention. Make someone name what they want in terms
-concrete enough that anyone could tell whether they hit it, then hang every
-daily behaviour off that statement. A habit attached to a named goal is a
-different experience from the same habit floating alone — and a habit attached
-to nothing should be visible as such.
+Connect daily action back to stated intent, and make that connection visible,
+not just implied. A habit or task attached to a named goal is a different
+experience from the same item floating alone. The product's job is to make
+that link feel real, not to maximize how much it tracks.
+
+Small number of features, done exceptionally well, beats a large surface area.
 
 ## Sections
 
-Five tabs. Three of them are entered from a moment, not browsed.
+Four areas. Home has a daily rhythm; the rest are visited, not browsed daily.
 
-### 1. Daily Brain — home
+### 1. Home
 
-The only screen with a daily rhythm.
+The daily space. Answers "what matters today" without becoming a dashboard.
 
-- **Morning**: today's intention, one line. Shows which goal it serves.
-- **Habits**: short list, grouped under the goal each one serves. Unattached
-  habits appear in their own group labelled plainly.
-- **Evening**: diary entry, free text. This is the input the reframe engine
-  learns from.
+- **Tasks**: one-off items. Complete them, or carry them to tomorrow. Carrying
+  a task over is never framed as failure — after a few carries, the app asks
+  once, gently, whether it's still worth keeping.
+- **Habits**: daily non-negotiables, grouped under the goal each one serves.
+  Checked fresh each day; missing a day doesn't carry over, doesn't delete the
+  habit, and isn't shown as broken. Unattached habits appear in their own
+  group, labelled plainly.
+- **Diary**: one open question, one text box. "How did today go?" No
+  questionnaire. This is the input the reframe engine and Progress learn from.
 - **Quotes**: a passive collection the user adds to and browses.
 
-Two buttons on this screen open other sections:
-`Something happened` → Mindset. `Start working` → Focus.
+### 2. Goals
 
-### 2. Mindset — entered from a moment
+Longer-term things the user wants. Create, edit, archive, or mark complete.
+Optional target date. Optional habits/tasks attached.
 
-The reframe loop. Something went badly; user writes what happened in a sentence
-or two. The app asks two or three questions to surface the automatic
-interpretation. Names the pattern if it has seen it before. User writes the
-alternate reading themselves — the app does not write it for them.
+Creating a goal is frictionless — one field, save, done. No required "why," no
+motivation statement, no interrogation. A non-blocking AI suggestion may exist
+later, but it never gates saving.
+
+Goals are revisitable, not permanent. Archiving or rewriting a goal never
+reads as failure — apps that treat abandoned goals as dead weight fill up and
+get deleted.
+
+### 3. Mindset — entered from a moment
+
+Launches small: the reframe loop only. Something went badly; user writes what
+happened in a sentence or two. The app asks two or three questions to surface
+the automatic interpretation. User writes the alternate reading themselves —
+the app never writes it for them.
 
 Target: under ninety seconds start to finish.
 
-Later: self-talk, visualization, mental exercises. Not in v1.
+Self-talk and visualization are real ideas but have no design work behind them
+yet — don't build them until reframing has proven itself.
 
-### 3. Focus — entered from a moment
+### 4. Progress — reviewed weekly, never daily
 
-Deep work sessions and phone usage. **Not in v1.** The blocking and grayscale
-features need native OS access and are a separate build.
+Reflection, not statistics. Built from what's already collected — habits,
+tasks, diary entries, goals — to surface what actually happened, in a sentence
+a person would say to a friend, not a scorecard.
 
-### 4. Growth — entered from a moment
+> This week you were more consistent with exercise, and your diary entries
+> from those days mention feeling more energized.
 
-Reading, learning, cognitive challenges. **Not in v1.**
+A small amount of supporting data may sit underneath. It never leads.
 
-### 5. Progress — reviewed weekly and monthly, never daily
+Returning after a break is always welcoming, never a report of what was
+missed. No streak language, no "you fell behind."
 
-The goal hierarchy lives here.
+## Not in the MVP
 
-- **Six-month goal**: one to three, maximum. The app pushes back on vague
-  wording — if someone writes "be more disciplined", it asks what they'd be
-  doing in six months that they aren't doing now.
-- **Monthly milestone**: what has to be true at the end of this month for the
-  six-month goal to still be reachable.
-- **Daily habits**: attached to a goal at the moment they're created.
+Focus (sessions, phone usage, blocking, grayscale) — needs native OS access,
+separate build. Growth (reading, cognitive challenges). WHOOP and Apple
+Health. Import from Notion or elsewhere. Social features. Payments.
 
-**Monthly review** is the ritual and the retention event. Here's what you said,
-here's what happened, here's what to change. Missing a day doesn't break it.
-
-Every goal can be retired or rewritten without it reading as failure. Apps that
-skip this fill up with dead goals and get deleted.
+All of these are real future ideas, not commitments. Build only when there's
+an actual reason to, not because the category exists.
 
 ## What is never shown
 
-- A composite "brain health score", or any blended index across unlike things.
+- A composite score of any kind, blended or otherwise.
 - Daily mood ratings.
+- Broken-streak messaging, "you missed N days," or any shame framing.
 - Total time spent in the app.
 
-Show counts and streaks honestly labelled as counts and streaks.
+Show counts honestly labelled as counts. No gamification — no points, XP,
+badges, levels, or leaderboards, anywhere.
 
 ## Free vs paid
 
-Free: goals, habits, morning intention, evening diary, quotes, monthly review
-in basic form. The product works fully.
+Free: goals, tasks, habits, diary, quotes, Progress in basic form. The product
+works fully.
 
-Paid: the AI layer — pattern detection across diary entries, the reframe engine,
-the monthly review written from actual data, full history.
-
-Conversion moment is the first monthly review, four weeks in, when there's real
-data to show a preview of.
+Paid: the AI layer — the reframe engine, Progress written from actual data,
+full history.
 
 Do not price this yet.
 
 ## Design direction
 
-The subject is attention and self-knowledge, so the interface should feel like
-a quiet room, not a dashboard.
+Premium, dark-first, restrained — closer to a high-end performance app than a
+productivity dashboard, but never a copy of one. Motivating without being
+aggressive; calm even with a full task list.
 
-- **Palette**: paper-white ground (`#FAFAF8`), deep ink for text (`#16181D`),
-  muted warm grey for secondary (`#8A8983`), and one saturated accent —
-  a strong signal blue (`#1B4DFF`) — used *only* on the reframe flow and the
-  goal statement. Nowhere else. Avoid cream-plus-serif-plus-terracotta and
-  avoid dark-mode-with-acid-green; both are the current AI-design defaults.
-- **Type**: a neutral grotesk for interface and data. Goal statements get set
-  large in a face with real character — the user's own words should look
-  typeset, like something declared rather than entered into a form.
-- **Signature element**: the goal statement rendered at display size on
-  Progress, with the habits serving it listed beneath as small marks. Habits
-  attached to nothing sit visually detached from any statement. The layout
-  itself is the argument.
-- **Motion**: almost none. One deliberate transition entering the reframe flow,
-  so it feels like stepping into a different room. Respect
+- **Surfaces**: near-black ground with charcoal/deep-gray elevated tiers, not
+  pure black everywhere. Not everything belongs in a card — some content sits
+  directly on the background.
+- **Type**: one confident grotesk family (already loaded: Geist), carrying all
+  hierarchy through weight, size, and spacing rather than mixing typefaces.
+- **Accent**: one restrained signature color for actions and state. Used
+  sparingly, never decoratively.
+- **Motion**: subtle and purposeful — task/habit completion, page transitions,
+  opening the diary. Should feel expensive, not flashy. Respect
   `prefers-reduced-motion`.
 
-Empty states are invitations, not apologies. Errors say what happened and what
-to do.
+### Signature elements
+
+Two, deliberately not more, and neither is a new feature — both are ways of
+rendering the relationships and content that already exist.
+
+1. **The thread.** A quiet connecting line from a goal down through its
+   attached habits and tasks to today's completions. Normally inert. The
+   moment something attached to that goal is completed, a brief glow travels
+   that segment of the line and settles — a few hundred milliseconds, then
+   gone. Not a meter, nothing accumulates — it's a momentary confirmation that
+   this action fed that goal, which is the actual thesis of the product made
+   visible. This is why goal/habit/task relationships matter enough to model
+   explicitly in the data, not just as a foreign key.
+2. **Etched goal statements.** A saved goal's statement renders with a subtle
+   inset/engraved treatment — soft light from one direction, shadow from the
+   other — instead of flat colored text. Declared, not typed into a form.
+   Cheap (CSS only), no new asset or dependency.
+
+Explicitly avoided: any waveform, pulse-line, or heart-rate-style motif —
+that visual language already belongs to health wearables and would read as
+homage rather than as its own thing.
+
+Empty states are invitations, not apologies. Errors say what happened and
+what to do.
