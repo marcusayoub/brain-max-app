@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
 import { PageShell } from "@/components/page-shell";
+import { Toast } from "@/components/ui/toast";
 import { todayLocal } from "@/lib/date";
 
 type Goal = { id: string; statement: string };
@@ -24,6 +25,7 @@ export default function DailyClient() {
   const [newTitle, setNewTitle] = useState("");
   const [newGoalId, setNewGoalId] = useState("");
   const [adding, setAdding] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -62,20 +64,28 @@ export default function DailyClient() {
     const isChecked = checkedToday.has(habitId);
 
     if (isChecked) {
-      await supabase
+      const { error } = await supabase
         .from("habit_checkins")
         .delete()
         .eq("habit_id", habitId)
         .eq("date", today);
+      if (error) {
+        setToast(error.message);
+        return;
+      }
       setCheckedToday((prev) => {
         const next = new Set(prev);
         next.delete(habitId);
         return next;
       });
     } else {
-      await supabase
+      const { error } = await supabase
         .from("habit_checkins")
         .insert({ habit_id: habitId, user_id: userId, date: today });
+      if (error) {
+        setToast(error.message);
+        return;
+      }
       setCheckedToday((prev) => new Set(prev).add(habitId));
     }
   }
@@ -94,12 +104,14 @@ export default function DailyClient() {
       .select()
       .single();
 
-    if (!error) {
-      setHabits((prev) => [...prev, data as Habit]);
-      setNewTitle("");
-      setNewGoalId("");
-      setAdding(false);
+    if (error) {
+      setToast(error.message);
+      return;
     }
+    setHabits((prev) => [...prev, data as Habit]);
+    setNewTitle("");
+    setNewGoalId("");
+    setAdding(false);
   }
 
   if (loading) {
@@ -236,6 +248,7 @@ export default function DailyClient() {
           Something happened →
         </Link>
       </div>
+      <Toast message={toast} onDismiss={() => setToast(null)} />
     </PageShell>
   );
 }

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EtchedText } from "@/components/ui/etched-text";
 import { PageShell } from "@/components/page-shell";
+import { Toast } from "@/components/ui/toast";
 import { todayLocal } from "@/lib/date";
 
 type Goal = {
@@ -126,9 +127,11 @@ export default function GoalsClient() {
       .from("goals")
       .update({ status: "archived", archived_at: new Date().toISOString() })
       .eq("id", id);
-    if (!updateError) {
-      setGoals((prev) => prev.map((g) => (g.id === id ? { ...g, status: "archived" } : g)));
+    if (updateError) {
+      setError(updateError.message);
+      return;
     }
+    setGoals((prev) => prev.map((g) => (g.id === id ? { ...g, status: "archived" } : g)));
   }
 
   async function handleComplete(id: string) {
@@ -136,9 +139,11 @@ export default function GoalsClient() {
       .from("goals")
       .update({ status: "completed", completed_at: new Date().toISOString() })
       .eq("id", id);
-    if (!updateError) {
-      setGoals((prev) => prev.map((g) => (g.id === id ? { ...g, status: "completed" } : g)));
+    if (updateError) {
+      setError(updateError.message);
+      return;
     }
+    setGoals((prev) => prev.map((g) => (g.id === id ? { ...g, status: "completed" } : g)));
   }
 
   async function handleEditSave(id: string) {
@@ -150,16 +155,18 @@ export default function GoalsClient() {
         description: editDescriptionDraft.trim() || null,
       })
       .eq("id", id);
-    if (!updateError) {
-      setGoals((prev) =>
-        prev.map((g) =>
-          g.id === id
-            ? { ...g, statement: editDraft.trim(), description: editDescriptionDraft.trim() || null }
-            : g,
-        ),
-      );
-      setEditingId(null);
+    if (updateError) {
+      setError(updateError.message);
+      return;
     }
+    setGoals((prev) =>
+      prev.map((g) =>
+        g.id === id
+          ? { ...g, statement: editDraft.trim(), description: editDescriptionDraft.trim() || null }
+          : g,
+      ),
+    );
+    setEditingId(null);
   }
 
   if (loading) {
@@ -291,7 +298,6 @@ export default function GoalsClient() {
           <Button type="submit" disabled={saving || !draft.trim()} className="self-start">
             {saving ? "Saving..." : "Add goal"}
           </Button>
-          {error && <p className="text-sm text-red-600">{error}</p>}
         </form>
 
         {completedGoals.length > 0 && (
@@ -324,6 +330,7 @@ export default function GoalsClient() {
           </div>
         )}
       </div>
+      <Toast message={error} onDismiss={() => setError(null)} />
     </PageShell>
   );
 }

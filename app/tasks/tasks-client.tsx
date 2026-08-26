@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
 import { SwipeRow } from "@/components/ui/swipe-row";
 import { PageShell } from "@/components/page-shell";
+import { Toast } from "@/components/ui/toast";
 import { todayLocal } from "@/lib/date";
 
 type Goal = { id: string; statement: string };
@@ -45,6 +46,7 @@ export default function TasksClient() {
   const [newTitle, setNewTitle] = useState("");
   const [newGoalId, setNewGoalId] = useState("");
   const [adding, setAdding] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -98,21 +100,27 @@ export default function TasksClient() {
       .select("id, title, goal_id, carry_over_count, created_at")
       .single();
 
-    if (!error) {
-      setTasks((prev) => [...prev, data as Task]);
-      setNewTitle("");
-      setNewGoalId("");
-      setAdding(false);
+    if (error) {
+      setToast(error.message);
+      return;
     }
+    setTasks((prev) => [...prev, data as Task]);
+    setNewTitle("");
+    setNewGoalId("");
+    setAdding(false);
   }
 
   async function handleComplete(task: Task) {
-    setTasks((prev) => prev.filter((t) => t.id !== task.id));
-    setDoneTasks((prev) => [task, ...prev]);
-    await supabase
+    const { error } = await supabase
       .from("tasks")
       .update({ status: "done", completed_at: new Date().toISOString() })
       .eq("id", task.id);
+    if (error) {
+      setToast(error.message);
+      return;
+    }
+    setTasks((prev) => prev.filter((t) => t.id !== task.id));
+    setDoneTasks((prev) => [task, ...prev]);
   }
 
   async function handleCarryOver(task: Task) {
@@ -120,40 +128,62 @@ export default function TasksClient() {
       setNudgingId(task.id);
       return;
     }
-    setTasks((prev) => prev.filter((t) => t.id !== task.id));
-    await supabase
+    const { error } = await supabase
       .from("tasks")
       .update({
         scheduled_date: todayLocal(1),
         carry_over_count: task.carry_over_count + 1,
       })
       .eq("id", task.id);
+    if (error) {
+      setToast(error.message);
+      return;
+    }
+    setTasks((prev) => prev.filter((t) => t.id !== task.id));
   }
 
   async function handleNudgeKeep(task: Task) {
+    const { error } = await supabase
+      .from("tasks")
+      .update({ carry_over_count: 0 })
+      .eq("id", task.id);
+    if (error) {
+      setToast(error.message);
+      return;
+    }
     setNudgingId(null);
     setTasks((prev) =>
       prev.map((t) => (t.id === task.id ? { ...t, carry_over_count: 0 } : t)),
     );
-    await supabase.from("tasks").update({ carry_over_count: 0 }).eq("id", task.id);
   }
 
   async function handleNudgeReschedule(task: Task) {
-    setNudgingId(null);
-    setTasks((prev) => prev.filter((t) => t.id !== task.id));
-    await supabase
+    const { error } = await supabase
       .from("tasks")
       .update({
         scheduled_date: todayLocal(1),
         carry_over_count: task.carry_over_count + 1,
       })
       .eq("id", task.id);
+    if (error) {
+      setToast(error.message);
+      return;
+    }
+    setNudgingId(null);
+    setTasks((prev) => prev.filter((t) => t.id !== task.id));
   }
 
   async function handleNudgeLetGo(task: Task) {
+    const { error } = await supabase
+      .from("tasks")
+      .update({ status: "let_go" })
+      .eq("id", task.id);
+    if (error) {
+      setToast(error.message);
+      return;
+    }
     setNudgingId(null);
     setTasks((prev) => prev.filter((t) => t.id !== task.id));
-    await supabase.from("tasks").update({ status: "let_go" }).eq("id", task.id);
   }
 
   if (loading) {
@@ -306,6 +336,7 @@ export default function TasksClient() {
           </div>
         )}
       </div>
+      <Toast message={toast} onDismiss={() => setToast(null)} />
     </PageShell>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { PageShell } from "@/components/page-shell";
+import { Toast } from "@/components/ui/toast";
 
 type Affirmation = { id: string; text: string };
 
@@ -21,6 +22,7 @@ export default function AffirmClient() {
   const [index, setIndex] = useState(0);
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState("");
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -59,15 +61,17 @@ export default function AffirmClient() {
       .select("id, text")
       .single();
 
-    if (!error) {
-      setAffirmations((prev) => {
-        const next = [...prev, data as Affirmation];
-        setIndex(next.length - 1);
-        return next;
-      });
-      setDraft("");
-      setAdding(false);
+    if (error) {
+      setToast(error.message);
+      return;
     }
+    setAffirmations((prev) => {
+      const next = [...prev, data as Affirmation];
+      setIndex(next.length - 1);
+      return next;
+    });
+    setDraft("");
+    setAdding(false);
   }
 
   if (loading) {
@@ -153,6 +157,7 @@ export default function AffirmClient() {
           </form>
         )}
       </div>
+      <Toast message={toast} onDismiss={() => setToast(null)} />
     </PageShell>
   );
 }

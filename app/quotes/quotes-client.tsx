@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageShell } from "@/components/page-shell";
+import { Toast } from "@/components/ui/toast";
 import { todayLocal } from "@/lib/date";
 
 type Quote = {
@@ -39,6 +40,7 @@ export default function QuotesClient() {
   const [author, setAuthor] = useState("");
   const [note, setNote] = useState("");
   const [tagsInput, setTagsInput] = useState("");
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -80,14 +82,16 @@ export default function QuotesClient() {
       .select("id, text, author, note, tags")
       .single();
 
-    if (!error) {
-      setQuotes((prev) => [...prev, data as Quote]);
-      setText("");
-      setAuthor("");
-      setNote("");
-      setTagsInput("");
-      setAdding(false);
+    if (error) {
+      setToast(error.message);
+      return;
     }
+    setQuotes((prev) => [...prev, data as Quote]);
+    setText("");
+    setAuthor("");
+    setNote("");
+    setTagsInput("");
+    setAdding(false);
   }
 
   if (loading) {
@@ -206,6 +210,7 @@ export default function QuotesClient() {
           </button>
         )}
       </div>
+      <Toast message={toast} onDismiss={() => setToast(null)} />
     </PageShell>
   );
 }

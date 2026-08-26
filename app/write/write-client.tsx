@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { PageShell } from "@/components/page-shell";
+import { Button } from "@/components/ui/button";
+import { Toast } from "@/components/ui/toast";
 import { todayLocal } from "@/lib/date";
 
 export default function WriteClient() {
@@ -12,7 +14,8 @@ export default function WriteClient() {
   const [userId, setUserId] = useState<string | null>(null);
   const [entry, setEntry] = useState("");
   const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState<"idle" | "saved">("idle");
+  const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -39,17 +42,23 @@ export default function WriteClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function handleChange(value: string) {
+  function handleChange(value: string) {
     setEntry(value);
     setStatus("idle");
   }
 
-  async function handleBlur() {
+  async function handleSave() {
     if (!userId || !entry.trim()) return;
-    await supabase.from("diary_entries").upsert(
+    setStatus("saving");
+    const { error } = await supabase.from("diary_entries").upsert(
       { user_id: userId, date: today, evening_entry: entry.trim() },
       { onConflict: "user_id,date" },
     );
+    if (error) {
+      setStatus("idle");
+      setToast(error.message);
+      return;
+    }
     setStatus("saved");
   }
 
@@ -76,19 +85,24 @@ export default function WriteClient() {
           <p className="text-sm font-medium uppercase tracking-[0.08em] text-muted">
             {dateLabel}
           </p>
-          {status === "saved" && (
-            <span className="text-xs text-muted">Saved</span>
-          )}
+          {status === "saved" && <span className="text-xs text-muted">Saved</span>}
         </div>
         <textarea
           value={entry}
           onChange={(e) => handleChange(e.target.value)}
-          onBlur={handleBlur}
           autoFocus
           placeholder="Start anywhere."
-          className="min-h-[60vh] w-full resize-none bg-transparent font-serif text-2xl italic leading-relaxed text-foreground placeholder:text-muted/60 focus-visible:outline-none"
+          className="min-h-[50vh] w-full resize-none bg-transparent font-serif text-2xl italic leading-relaxed text-foreground placeholder:text-muted/60 focus-visible:outline-none"
         />
+        <Button
+          onClick={handleSave}
+          disabled={status === "saving" || !entry.trim()}
+          className="mt-4 self-start"
+        >
+          {status === "saving" ? "Saving..." : status === "saved" ? "Saved" : "Save"}
+        </Button>
       </div>
+      <Toast message={toast} onDismiss={() => setToast(null)} />
     </PageShell>
   );
 }
