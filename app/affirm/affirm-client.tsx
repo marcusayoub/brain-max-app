@@ -24,6 +24,9 @@ export default function AffirmClient() {
   const [draft, setDraft] = useState("");
   const [toast, setToast] = useState<string | null>(null);
 
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState("");
+
   useEffect(() => {
     async function load() {
       const {
@@ -74,6 +77,35 @@ export default function AffirmClient() {
     setAdding(false);
   }
 
+  async function handleEditSave(id: string) {
+    if (!editDraft.trim()) return;
+    const { error } = await supabase
+      .from("affirmations")
+      .update({ text: editDraft.trim() })
+      .eq("id", id);
+    if (error) {
+      setToast(error.message);
+      return;
+    }
+    setAffirmations((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, text: editDraft.trim() } : a)),
+    );
+    setEditingId(null);
+  }
+
+  async function handleDelete(id: string) {
+    const { error } = await supabase.from("affirmations").delete().eq("id", id);
+    if (error) {
+      setToast(error.message);
+      return;
+    }
+    setAffirmations((prev) => {
+      const next = prev.filter((a) => a.id !== id);
+      setIndex((i) => Math.min(i, Math.max(next.length - 1, 0)));
+      return next;
+    });
+  }
+
   if (loading) {
     return (
       <PageShell>
@@ -85,6 +117,7 @@ export default function AffirmClient() {
   }
 
   const current = affirmations[index];
+  const editing = editingId === current?.id;
 
   return (
     <PageShell>
@@ -96,7 +129,7 @@ export default function AffirmClient() {
           <button
             onClick={() => setAdding(true)}
             aria-label="Add affirmation"
-            className="text-lg text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+            className="text-lg text-accent transition-colors hover:text-accent/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
           >
             +
           </button>
@@ -108,7 +141,7 @@ export default function AffirmClient() {
           </p>
         )}
 
-        {affirmations.length > 0 && current && (
+        {affirmations.length > 0 && current && !editing && (
           <button
             onClick={next}
             aria-label="Next affirmation"
@@ -120,8 +153,33 @@ export default function AffirmClient() {
           </button>
         )}
 
+        {current && editing && (
+          <div className="flex min-h-[50vh] flex-1 flex-col items-center justify-center gap-3 px-2">
+            <textarea
+              value={editDraft}
+              onChange={(e) => setEditDraft(e.target.value)}
+              autoFocus
+              className={textareaStyles}
+            />
+            <div className="flex gap-4 text-sm">
+              <button
+                onClick={() => handleEditSave(current.id)}
+                className="font-medium text-accent transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => setEditingId(null)}
+                className="text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
         {affirmations.length > 0 && (
-          <div className="mb-10 flex items-center justify-center gap-6">
+          <div className="flex items-center justify-center gap-6">
             <button
               onClick={prev}
               aria-label="Previous affirmation"
@@ -138,6 +196,26 @@ export default function AffirmClient() {
               className="text-lg text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
             >
               ›
+            </button>
+          </div>
+        )}
+
+        {current && !editing && (
+          <div className="mb-10 flex items-center justify-center gap-5 text-sm">
+            <button
+              onClick={() => {
+                setEditingId(current.id);
+                setEditDraft(current.text);
+              }}
+              className="text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => handleDelete(current.id)}
+              className="text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+            >
+              Delete
             </button>
           </div>
         )}

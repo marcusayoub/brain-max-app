@@ -88,7 +88,7 @@ export function BottomNav() {
               <svg
                 viewBox="0 0 24 24"
                 className={`h-5 w-5 transition-colors duration-150 ${
-                  active ? "text-foreground" : "text-muted"
+                  active ? "text-accent" : "text-muted"
                 }`}
                 fill="none"
                 stroke="currentColor"

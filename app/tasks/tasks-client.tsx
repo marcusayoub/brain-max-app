@@ -38,9 +38,9 @@ export default function TasksClient() {
   const [userId, setUserId] = useState<string | null>(null);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [tomorrowTasks, setTomorrowTasks] = useState<Task[]>([]);
   const [doneTasks, setDoneTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showDone, setShowDone] = useState(false);
   const [nudgingId, setNudgingId] = useState<string | null>(null);
 
   const [newTitle, setNewTitle] = useState("");
@@ -56,7 +56,12 @@ export default function TasksClient() {
       if (!user) return;
       setUserId(user.id);
 
-      const [goalsRes, tasksRes, doneRes] = await Promise.all([
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+      const startOfTomorrow = new Date(startOfToday);
+      startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
+
+      const [goalsRes, tasksRes, tomorrowRes, doneRes] = await Promise.all([
         supabase
           .from("goals")
           .select("id, statement")
@@ -71,13 +76,21 @@ export default function TasksClient() {
         supabase
           .from("tasks")
           .select("id, title, goal_id, carry_over_count, created_at")
+          .eq("status", "open")
+          .eq("scheduled_date", todayLocal(1))
+          .order("created_at", { ascending: true }),
+        supabase
+          .from("tasks")
+          .select("id, title, goal_id, carry_over_count, created_at")
           .eq("status", "done")
-          .order("completed_at", { ascending: false })
-          .limit(20),
+          .gte("completed_at", startOfToday.toISOString())
+          .lt("completed_at", startOfTomorrow.toISOString())
+          .order("completed_at", { ascending: false }),
       ]);
 
       setGoals((goalsRes.data as Goal[]) ?? []);
       setTasks((tasksRes.data as Task[]) ?? []);
+      setTomorrowTasks((tomorrowRes.data as Task[]) ?? []);
       setDoneTasks((doneRes.data as Task[]) ?? []);
       setLoading(false);
     }
@@ -140,6 +153,10 @@ export default function TasksClient() {
       return;
     }
     setTasks((prev) => prev.filter((t) => t.id !== task.id));
+    setTomorrowTasks((prev) => [
+      ...prev,
+      { ...task, carry_over_count: task.carry_over_count + 1 },
+    ]);
   }
 
   async function handleNudgeKeep(task: Task) {
@@ -171,6 +188,10 @@ export default function TasksClient() {
     }
     setNudgingId(null);
     setTasks((prev) => prev.filter((t) => t.id !== task.id));
+    setTomorrowTasks((prev) => [
+      ...prev,
+      { ...task, carry_over_count: task.carry_over_count + 1 },
+    ]);
   }
 
   async function handleNudgeLetGo(task: Task) {
@@ -202,7 +223,7 @@ export default function TasksClient() {
     <PageShell>
       <div className="mx-auto max-w-2xl px-6 pt-2">
         <p className="mb-1 text-sm font-medium uppercase tracking-[0.08em] text-muted">
-          Open loops
+          Today
         </p>
         <h1 className="text-3xl font-bold tracking-[-0.02em] text-foreground">
           {tasks.length} waiting on you
@@ -307,32 +328,44 @@ export default function TasksClient() {
         ) : (
           <button
             onClick={() => setAdding(true)}
-            className="mt-6 text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+            className="mt-6 text-sm text-accent transition-colors hover:text-accent/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
           >
             + Add task
           </button>
         )}
 
+        {tomorrowTasks.length > 0 && (
+          <div className="mt-10">
+            <p className="mb-3 text-sm font-medium uppercase tracking-[0.08em] text-muted">
+              Tomorrow
+            </p>
+            <ul className="flex flex-col gap-3">
+              {tomorrowTasks.map((task) => (
+                <li key={task.id} className="rounded-2xl bg-surface p-4">
+                  <p className="text-foreground">{task.title}</p>
+                  <p className="mt-0.5 text-xs text-muted">
+                    {task.goal_id && goalById.get(task.goal_id)
+                      ? goalById.get(task.goal_id)
+                      : ""}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {doneTasks.length > 0 && (
           <div className="mt-10">
-            <button
-              onClick={() => setShowDone((v) => !v)}
-              className="flex items-center gap-2 text-sm font-medium uppercase tracking-[0.08em] text-muted"
-            >
-              Done {doneTasks.length}
-              <span className={`transition-transform ${showDone ? "rotate-180" : ""}`}>
-                ⌄
-              </span>
-            </button>
-            {showDone && (
-              <ul className="mt-3 flex flex-col gap-2">
-                {doneTasks.map((task) => (
-                  <li key={task.id} className="text-sm text-muted line-through">
-                    {task.title}
-                  </li>
-                ))}
-              </ul>
-            )}
+            <p className="mb-3 text-sm font-medium uppercase tracking-[0.08em] text-muted">
+              Done
+            </p>
+            <ul className="flex flex-col gap-2">
+              {doneTasks.map((task) => (
+                <li key={task.id} className="text-sm text-muted line-through">
+                  {task.title}
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </div>

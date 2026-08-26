@@ -114,6 +114,20 @@ export default function DailyClient() {
     setAdding(false);
   }
 
+  async function handleDeleteHabit(habitId: string) {
+    const { error } = await supabase.from("habits").delete().eq("id", habitId);
+    if (error) {
+      setToast(error.message);
+      return;
+    }
+    setHabits((prev) => prev.filter((h) => h.id !== habitId));
+    setCheckedToday((prev) => {
+      const next = new Set(prev);
+      next.delete(habitId);
+      return next;
+    });
+  }
+
   if (loading) {
     return (
       <PageShell>
@@ -163,10 +177,10 @@ export default function DailyClient() {
                 ? goalById.get(habit.goal_id)
                 : null;
               return (
-                <li key={habit.id}>
+                <li key={habit.id} className="group flex items-center gap-1">
                   <button
                     onClick={() => toggleHabit(habit.id)}
-                    className="flex w-full items-center gap-3 rounded-xl py-2.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                    className="flex flex-1 items-center gap-3 rounded-xl py-2.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                   >
                     <span
                       className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border-2 transition-colors duration-150 ${
@@ -204,6 +218,13 @@ export default function DailyClient() {
                       )}
                     </span>
                   </button>
+                  <button
+                    onClick={() => handleDeleteHabit(habit.id)}
+                    aria-label="Delete habit"
+                    className="shrink-0 rounded p-1.5 text-muted opacity-0 transition-opacity hover:text-foreground focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent group-hover:opacity-100"
+                  >
+                    ×
+                  </button>
                 </li>
               );
             })}
@@ -234,7 +255,7 @@ export default function DailyClient() {
           ) : (
             <button
               onClick={() => setAdding(true)}
-              className="mt-3 text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+              className="mt-3 text-sm text-accent transition-colors hover:text-accent/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
             >
               + Add habit
             </button>

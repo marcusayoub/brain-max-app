@@ -85,7 +85,7 @@ export default function WriteClient() {
           <p className="text-sm font-medium uppercase tracking-[0.08em] text-muted">
             {dateLabel}
           </p>
-          {status === "saved" && <span className="text-xs text-muted">Saved</span>}
+          {status === "saved" && <span className="text-xs text-accent">Saved</span>}
         </div>
         <textarea
           value={entry}
