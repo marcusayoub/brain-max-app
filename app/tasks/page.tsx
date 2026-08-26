@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import HomeClient from "./home-client";
+import TasksClient from "./tasks-client";
 
-export default async function HomePage() {
+export default async function TasksPage() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -12,5 +12,5 @@ export default async function HomePage() {
     redirect("/login");
   }
 
-  return <HomeClient />;
+  return <TasksClient />;
 }

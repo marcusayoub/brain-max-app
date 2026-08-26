@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { AppNav } from "@/components/nav";
+import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -71,9 +71,8 @@ export default function MindsetClient() {
   }
 
   return (
-    <div className="min-h-screen">
-      <AppNav />
-      <div className="mx-auto max-w-xl px-6 pb-16 pt-10 sm:pt-12">
+    <PageShell>
+      <div className="mx-auto max-w-2xl px-6 pt-2">
         <h1 className="mb-8 text-sm font-medium uppercase tracking-[0.08em] text-muted">
           Mindset
         </h1>
@@ -150,6 +149,6 @@ export default function MindsetClient() {
           </div>
         )}
       </div>
-    </div>
+    </PageShell>
   );
 }

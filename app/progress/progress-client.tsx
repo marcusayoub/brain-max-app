@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AppNav } from "@/components/nav";
+import { PageShell } from "@/components/page-shell";
 
 type Result = {
   reflection: string | null;
@@ -21,9 +21,8 @@ export default function ProgressClient() {
   }, []);
 
   return (
-    <div className="min-h-screen">
-      <AppNav />
-      <div className="mx-auto max-w-xl px-6 pb-16 pt-10 sm:pt-12">
+    <PageShell>
+      <div className="mx-auto max-w-2xl px-6 pt-2">
         <h1 className="mb-8 text-sm font-medium uppercase tracking-[0.08em] text-muted">
           This week
         </h1>
@@ -44,11 +43,11 @@ export default function ProgressClient() {
 
         {!loading && !result?.reflection && (
           <p className="text-lg leading-relaxed text-muted">
-            Not much here yet — come back once you&apos;ve used Home for a
+            Not much here yet — come back once you&apos;ve used Daily for a
             few days, and this will start reflecting something real back.
           </p>
         )}
       </div>
-    </div>
+    </PageShell>
   );
 }
