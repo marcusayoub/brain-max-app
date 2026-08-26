@@ -129,13 +129,15 @@ end $$;
 
 alter table public.goals add column if not exists archived_at timestamptz;
 
--- Constraint must allow 'archived' BEFORE any row is updated to that value.
+-- Constraint must be dropped, data fixed, THEN re-added — adding a check
+-- constraint validates all existing rows immediately, so it must come last.
 alter table public.goals drop constraint if exists goals_status_check;
+
+update public.goals set status = 'archived' where status = 'retired';
+
 alter table public.goals
   add constraint goals_status_check
   check (status in ('active', 'completed', 'archived'));
-
-update public.goals set status = 'archived' where status = 'retired';
 
 alter table public.goals add column if not exists target_date date;
 alter table public.goals add column if not exists completed_at timestamptz;
