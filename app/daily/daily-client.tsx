@@ -262,20 +262,12 @@ export default function DailyClient() {
           )}
         </div>
 
-        <div className="mt-8 flex flex-col gap-2">
-          <Link
-            href="/meditation"
-            className="block text-sm text-muted underline decoration-muted/40 underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
-          >
-            Meditate →
-          </Link>
-          <Link
-            href="/mindset"
-            className="block text-sm text-muted underline decoration-muted/40 underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
-          >
-            Something happened →
-          </Link>
-        </div>
+        <Link
+          href="/mindset"
+          className="mt-8 block text-sm text-muted underline decoration-muted/40 underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+        >
+          Something happened →
+        </Link>
       </div>
       <Toast message={toast} onDismiss={() => setToast(null)} />
     </PageShell>
