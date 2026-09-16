@@ -35,9 +35,9 @@ export async function GET() {
       .gte("completed_at", since),
     supabase
       .from("diary_entries")
-      .select("date, evening_entry")
+      .select("date, content")
       .gte("date", since)
-      .not("evening_entry", "is", null),
+      .not("content", "is", null),
   ]);
 
   const checkins = checkinsRes.data ?? [];
@@ -57,7 +57,7 @@ export async function GET() {
   const summary = [
     `Habit check-ins in the last 7 days: ${JSON.stringify(checkins)}`,
     `Tasks completed: ${JSON.stringify(tasksDone.map((t) => t.title))}`,
-    `Diary entries: ${JSON.stringify(diaryEntries.map((d) => ({ date: d.date, text: d.evening_entry })))}`,
+    `Diary entries: ${JSON.stringify(diaryEntries.map((d) => ({ date: d.date, text: d.content })))}`,
   ].join("\n");
 
   const message = await anthropic.messages.create({
