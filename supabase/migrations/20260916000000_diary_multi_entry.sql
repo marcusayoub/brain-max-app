@@ -15,7 +15,7 @@ begin
     and tc.table_name = 'diary_entries'
     and tc.constraint_type = 'UNIQUE'
   group by tc.constraint_name
-  having array_agg(kcu.column_name order by kcu.column_name) = array['date', 'user_id'];
+  having array_agg(kcu.column_name::text order by kcu.column_name::text) = array['date', 'user_id'];
 
   if cname is not null then
     execute format('alter table public.diary_entries drop constraint %I', cname);
