@@ -1,11 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import { Toast } from "@/components/ui/toast";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { todayLocal } from "@/lib/date";
+
+type WhoopStatus = { connected: boolean; connectedAt: string | null };
 
 type MeditationType = "silent" | "breath" | "body_scan" | "open_awareness";
 
@@ -62,6 +66,7 @@ const chipBase =
 
 export default function MeditationClient() {
   const supabase = createClient();
+  const router = useRouter();
 
   const [userId, setUserId] = useState<string | null>(null);
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -69,6 +74,10 @@ export default function MeditationClient() {
   const [view, setView] = useState<View>("overview");
   const [toast, setToast] = useState<string | null>(null);
   const [toastVariant, setToastVariant] = useState<"error" | "success">("error");
+
+  const [whoopStatus, setWhoopStatus] = useState<WhoopStatus | null>(null);
+  const [disconnectOpen, setDisconnectOpen] = useState(false);
+  const [disconnecting, setDisconnecting] = useState(false);
 
   const [durationMin, setDurationMin] = useState(10);
   const [customMinutes, setCustomMinutes] = useState("");
@@ -102,6 +111,52 @@ export default function MeditationClient() {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    async function loadWhoopStatus() {
+      const res = await fetch("/api/whoop/status");
+      if (res.ok) {
+        setWhoopStatus((await res.json()) as WhoopStatus);
+      }
+    }
+    loadWhoopStatus();
+  }, []);
+
+  useEffect(() => {
+    function handleWhoopRedirect() {
+      const whoop = new URLSearchParams(window.location.search).get("whoop");
+      if (!whoop) return;
+
+      if (whoop === "connected") {
+        setToastVariant("success");
+        setToast("WHOOP connected");
+      } else if (whoop === "not_configured") {
+        setToastVariant("error");
+        setToast("WHOOP isn't configured yet.");
+      } else if (whoop === "error") {
+        setToastVariant("error");
+        setToast("Couldn't connect WHOOP. Please try again.");
+      }
+      router.replace("/meditation");
+    }
+    handleWhoopRedirect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function handleDisconnect() {
+    setDisconnecting(true);
+    const res = await fetch("/api/whoop/disconnect", { method: "POST" });
+    setDisconnecting(false);
+    setDisconnectOpen(false);
+    if (!res.ok) {
+      setToastVariant("error");
+      setToast("Couldn't disconnect WHOOP. Please try again.");
+      return;
+    }
+    setWhoopStatus({ connected: false, connectedAt: null });
+    setToastVariant("success");
+    setToast("WHOOP disconnected");
+  }
 
   useEffect(() => {
     if (view !== "session") return;
@@ -270,6 +325,33 @@ export default function MeditationClient() {
                 ))}
               </div>
             </div>
+
+            <div className="mt-6 rounded-2xl bg-surface p-4">
+              <p className="text-sm text-foreground">WHOOP</p>
+              {whoopStatus?.connected ? (
+                <>
+                  <p className="mt-1 text-xs text-muted">Connected</p>
+                  <button
+                    onClick={() => setDisconnectOpen(true)}
+                    className="mt-3 text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+                  >
+                    Disconnect
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="mt-1 text-xs text-muted">
+                    Connect WHOOP to see how meditation relates to your recovery.
+                  </p>
+                  <a
+                    href="/api/whoop/connect"
+                    className="mt-3 inline-block text-sm text-accent transition-colors hover:text-accent/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+                  >
+                    Connect WHOOP
+                  </a>
+                </>
+              )}
+            </div>
           </>
         )}
 
@@ -351,6 +433,14 @@ export default function MeditationClient() {
         )}
       </div>
 
+      <ConfirmDialog
+        open={disconnectOpen}
+        title="Disconnect WHOOP?"
+        description="Your app will stop syncing recovery, sleep, and strain data. You can reconnect any time."
+        confirmLabel={disconnecting ? "Disconnecting..." : "Disconnect"}
+        onConfirm={handleDisconnect}
+        onCancel={() => setDisconnectOpen(false)}
+      />
       <Toast message={toast} onDismiss={() => setToast(null)} variant={toastVariant} />
     </PageShell>
   );
