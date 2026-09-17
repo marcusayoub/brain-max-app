@@ -20,17 +20,6 @@ const tabs: { href: string; label: string; icon: ReactNode }[] = [
     ),
   },
   {
-    href: "/meditation",
-    label: "Meditate",
-    icon: (
-      <>
-        <circle cx="12" cy="5.5" r="2" />
-        <path d="M12 8v3.5" />
-        <path d="M4 19.5c1.8-3 5-4.5 8-4.5s6.2 1.5 8 4.5" />
-      </>
-    ),
-  },
-  {
     href: "/tasks",
     label: "Tasks",
     icon: (
@@ -39,6 +28,17 @@ const tabs: { href: string; label: string; icon: ReactNode }[] = [
         <circle cx="5" cy="12" r="1.3" />
         <circle cx="5" cy="18" r="1.3" />
         <path d="M10 6h10M10 12h10M10 18h10" />
+      </>
+    ),
+  },
+  {
+    href: "/meditation",
+    label: "Meditate",
+    icon: (
+      <>
+        <circle cx="12" cy="5.5" r="2" />
+        <path d="M12 8v3.5" />
+        <path d="M4 19.5c1.8-3 5-4.5 8-4.5s6.2 1.5 8 4.5" />
       </>
     ),
   },
