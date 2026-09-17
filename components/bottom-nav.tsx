@@ -7,11 +7,12 @@ import { type ReactNode } from "react";
 const tabs: { href: string; label: string; icon: ReactNode }[] = [
   {
     href: "/daily",
-    label: "Daily",
+    label: "Daily Habits",
     icon: (
       <>
-        <circle cx="12" cy="12" r="4" />
-        <path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
+        <circle cx="7" cy="12" r="2.3" />
+        <path d="M7 7.2V5.8M7 18.2v-1.4M2.5 12H1.2M4 8.5L3 7.5M4 15.5L3 16.5" />
+        <path d="M18.5 6.5a5.3 5.3 0 1 0 0 11 4.1 4.1 0 1 1 0-11z" />
       </>
     ),
   },
@@ -110,7 +111,7 @@ export function BottomNav() {
                 {tab.icon}
               </svg>
               <span
-                className={`text-[11px] transition-colors duration-150 ${
+                className={`flex min-h-[26px] items-center text-center text-[11px] leading-tight transition-colors duration-150 ${
                   active ? "font-medium text-foreground" : "text-muted"
                 }`}
               >
