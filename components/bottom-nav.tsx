@@ -10,9 +10,12 @@ const tabs: { href: string; label: string; icon: ReactNode }[] = [
     label: "Daily Habits",
     icon: (
       <>
-        <circle cx="7" cy="12" r="2.3" />
-        <path d="M7 7.2V5.8M7 18.2v-1.4M2.5 12H1.2M4 8.5L3 7.5M4 15.5L3 16.5" />
-        <path d="M18.5 6.5a5.3 5.3 0 1 0 0 11 4.1 4.1 0 1 1 0-11z" />
+        <circle cx="6.5" cy="12" r="2.3" />
+        <path d="M6.5 7.2V5.8M6.5 18.2v-1.4M2 12H0.7M3.5 8.5L2.5 7.5M3.5 15.5L2.5 16.5" />
+        <path
+          d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+          transform="translate(11.25 5.75) scale(0.5)"
+        />
       </>
     ),
   },
