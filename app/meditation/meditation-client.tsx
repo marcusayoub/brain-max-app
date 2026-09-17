@@ -7,7 +7,7 @@ import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import { Toast } from "@/components/ui/toast";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { todayLocal } from "@/lib/date";
+import { todayLocal, localDateKey } from "@/lib/date";
 
 type WhoopStatus = { connected: boolean; connectedAt: string | null };
 
@@ -39,13 +39,6 @@ function daysAgo(iso: string) {
   const startOfD = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
   const startOfNow = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
   return Math.round((startOfNow - startOfD) / 86400000);
-}
-
-function localDateStr(iso: string) {
-  const d = new Date(iso);
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${d.getFullYear()}-${mm}-${dd}`;
 }
 
 function formatMinutes(totalMin: number) {
@@ -254,7 +247,7 @@ export default function MeditationClient() {
 
   const consistencyDays = Array.from({ length: 14 }, (_, i) => {
     const dateStr = todayLocal(-(13 - i));
-    const hasSession = sessions.some((s) => localDateStr(s.started_at) === dateStr);
+    const hasSession = sessions.some((s) => localDateKey(new Date(s.started_at)) === dateStr);
     return { dateStr, hasSession };
   });
 

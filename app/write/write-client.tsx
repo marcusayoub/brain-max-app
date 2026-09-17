@@ -6,6 +6,7 @@ import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import { Toast } from "@/components/ui/toast";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { deriveTitle } from "@/lib/text";
 
 type Entry = {
   id: string;
@@ -16,17 +17,6 @@ type Entry = {
 };
 
 type View = "library" | "reading" | "writing";
-
-function deriveTitle(content: string): string {
-  const firstLine =
-    content
-      .trim()
-      .split("\n")
-      .find((line) => line.trim().length > 0) ?? "";
-  const sentenceMatch = firstLine.match(/^[^.!?]*[.!?]/);
-  const raw = (sentenceMatch ? sentenceMatch[0] : firstLine).trim();
-  return raw.length > 60 ? `${raw.slice(0, 57).trimEnd()}…` : raw;
-}
 
 function formatFullDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, {

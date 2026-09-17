@@ -50,7 +50,7 @@ export default function GoalsClient() {
         supabase.from("goals").select("*").order("created_at", { ascending: true }),
         supabase.from("tasks").select("id, goal_id, status").not("goal_id", "is", null),
         supabase.from("habits").select("id, goal_id").not("goal_id", "is", null),
-        supabase.from("habit_checkins").select("habit_id").eq("date", today),
+        supabase.from("habit_logs").select("habit_id").eq("date", today).eq("completed", true),
       ]);
 
       setGoals((goalsRes.data as Goal[]) ?? []);
