@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Input, Select } from "@/components/ui/input";
 import { EtchedText } from "@/components/ui/etched-text";
 import { PageShell } from "@/components/page-shell";
 import { Toast } from "@/components/ui/toast";
@@ -15,8 +15,11 @@ type Goal = {
   description: string | null;
   status: "active" | "completed" | "archived";
   target_date: string | null;
+  area_id: string | null;
   created_at: string;
 };
+
+type Area = { id: string; name: string; is_default: boolean };
 
 type Progress = { done: number; total: number; percent: number };
 
@@ -24,18 +27,21 @@ export default function GoalsClient() {
   const supabase = createClient();
   const [userId, setUserId] = useState<string | null>(null);
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [areas, setAreas] = useState<Area[]>([]);
   const [progressByGoal, setProgressByGoal] = useState<Map<string, Progress>>(new Map());
   const [loading, setLoading] = useState(true);
 
   const [draft, setDraft] = useState("");
   const [descriptionDraft, setDescriptionDraft] = useState("");
   const [targetDate, setTargetDate] = useState("");
+  const [areaId, setAreaId] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState("");
   const [editDescriptionDraft, setEditDescriptionDraft] = useState("");
+  const [editAreaId, setEditAreaId] = useState("");
 
   useEffect(() => {
     async function load() {
@@ -46,14 +52,19 @@ export default function GoalsClient() {
       setUserId(user.id);
 
       const today = todayLocal();
-      const [goalsRes, tasksRes, habitsRes, checkinsRes] = await Promise.all([
+      const [goalsRes, tasksRes, habitsRes, checkinsRes, areasRes] = await Promise.all([
         supabase.from("goals").select("*").order("created_at", { ascending: true }),
         supabase.from("tasks").select("id, goal_id, status").not("goal_id", "is", null),
         supabase.from("habits").select("id, goal_id").not("goal_id", "is", null),
         supabase.from("habit_logs").select("habit_id").eq("date", today).eq("completed", true),
+        supabase.from("areas").select("id, name, is_default").order("position", { ascending: true }),
       ]);
 
       setGoals((goalsRes.data as Goal[]) ?? []);
+      const areasList = (areasRes.data as Area[]) ?? [];
+      setAreas(areasList);
+      const defaultArea = areasList.find((a) => a.is_default) ?? areasList[0];
+      if (defaultArea) setAreaId(defaultArea.id);
 
       const checkedToday = new Set((checkinsRes.data ?? []).map((c) => c.habit_id as string));
       const tasksByGoal = new Map<string, { done: number; total: number }>();
@@ -106,6 +117,7 @@ export default function GoalsClient() {
         statement: draft.trim(),
         description: descriptionDraft.trim() || null,
         target_date: targetDate || null,
+        area_id: areaId || null,
       })
       .select()
       .single();
@@ -148,21 +160,45 @@ export default function GoalsClient() {
 
   async function handleEditSave(id: string) {
     if (!editDraft.trim()) return;
+    const newAreaId = editAreaId || null;
+    const goal = goals.find((g) => g.id === id);
+    const areaChanged = goal && goal.area_id !== newAreaId;
+
     const { error: updateError } = await supabase
       .from("goals")
       .update({
         statement: editDraft.trim(),
         description: editDescriptionDraft.trim() || null,
+        area_id: newAreaId,
       })
       .eq("id", id);
     if (updateError) {
       setError(updateError.message);
       return;
     }
+
+    // A goal's tasks inherit its area — keep them from drifting out of
+    // sync the moment the goal itself moves to a different area.
+    if (areaChanged && newAreaId) {
+      const { error: cascadeError } = await supabase
+        .from("tasks")
+        .update({ area_id: newAreaId })
+        .eq("goal_id", id);
+      if (cascadeError) {
+        setError(cascadeError.message);
+        return;
+      }
+    }
+
     setGoals((prev) =>
       prev.map((g) =>
         g.id === id
-          ? { ...g, statement: editDraft.trim(), description: editDescriptionDraft.trim() || null }
+          ? {
+              ...g,
+              statement: editDraft.trim(),
+              description: editDescriptionDraft.trim() || null,
+              area_id: newAreaId,
+            }
           : g,
       ),
     );
@@ -208,6 +244,16 @@ export default function GoalsClient() {
                       onChange={(e) => setEditDescriptionDraft(e.target.value)}
                       placeholder="A line about why (optional)"
                     />
+                    {areas.length > 0 && (
+                      <Select value={editAreaId} onChange={(e) => setEditAreaId(e.target.value)}>
+                        <option value="">No area</option>
+                        {areas.map((area) => (
+                          <option key={area.id} value={area.id}>
+                            {area.name}
+                          </option>
+                        ))}
+                      </Select>
+                    )}
                     <div className="flex gap-4 text-sm">
                       <button
                         onClick={() => handleEditSave(goal.id)}
@@ -234,6 +280,9 @@ export default function GoalsClient() {
                         Target: {formatDate(goal.target_date)}
                       </p>
                     )}
+                    {!goal.area_id && (
+                      <p className="mt-2 text-sm text-muted">No area</p>
+                    )}
                     {progress && (
                       <div className="mt-3">
                         <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
@@ -253,6 +302,7 @@ export default function GoalsClient() {
                           setEditingId(goal.id);
                           setEditDraft(goal.statement);
                           setEditDescriptionDraft(goal.description ?? "");
+                          setEditAreaId(goal.area_id ?? "");
                         }}
                         className="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
                       >
@@ -295,6 +345,15 @@ export default function GoalsClient() {
             onChange={(e) => setTargetDate(e.target.value)}
             className="text-muted"
           />
+          {areas.length > 0 && (
+            <Select value={areaId} onChange={(e) => setAreaId(e.target.value)}>
+              {areas.map((area) => (
+                <option key={area.id} value={area.id}>
+                  {area.name}
+                </option>
+              ))}
+            </Select>
+          )}
           <Button type="submit" disabled={saving || !draft.trim()} className="self-start">
             {saving ? "Saving..." : "Add goal"}
           </Button>
